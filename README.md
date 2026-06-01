@@ -8,7 +8,7 @@ Every time you search, scroll, hover, click, or press back on Google, your brows
 
 ---
 
-![Google gen_204 Telemetry Inspector capturing live SERP signals during a Google search](Screenshot.png)
+![Google gen_204 Telemetry Inspector capturing live SERP signals during a Google search](screenshot.png)
 
 ---
 
