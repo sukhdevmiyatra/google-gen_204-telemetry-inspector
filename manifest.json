@@ -1,19 +1,25 @@
 {
   "manifest_version": 3,
-  "name": "SERP Telemetry Inspector",
-  "version": "3.1",
-  "description": "Captures and decodes Google /gen_204 SERP telemetry signals in real time.",
+  "name": "Google gen_204 Telemetry Inspector",
+  "version": "4.0",
+  "description": "Captures, decodes, and reverse-engineers Google SERP telemetry — CAS signals, NavBoost inputs, AIO citations, session quality analysis.",
   "permissions": [
-    "storage"
+    "storage",
+    "sidePanel"
   ],
   "host_permissions": [
     "https://www.google.com/*",
-    "https://google.com/*"
+    "https://google.com/*",
+    "https://www.google.co.in/*",
+    "https://google.co.in/*"
   ],
+  "background": {
+    "service_worker": "background.js"
+  },
   "content_scripts": [
     {
-      "matches": ["https://www.google.com/*", "https://google.com/*"],
-      "js": ["content.js"],
+      "matches": ["https://www.google.com/*", "https://google.com/*", "https://www.google.co.in/*", "https://google.co.in/*"],
+      "js": ["decode.js", "content.js"],
       "run_at": "document_start",
       "all_frames": false
     }
@@ -21,18 +27,20 @@
   "web_accessible_resources": [
     {
       "resources": ["injector.js"],
-      "matches": ["https://www.google.com/*", "https://google.com/*"]
+      "matches": ["https://www.google.com/*", "https://google.com/*", "https://www.google.co.in/*", "https://google.co.in/*"]
     }
   ],
   "action": {
-    "default_popup": "popup.html",
-    "default_title": "SERP Telemetry Inspector",
+    "default_title": "Open Telemetry Inspector",
     "default_icon": {
       "16": "icon16.png",
       "32": "icon32.png",
       "48": "icon48.png",
       "128": "icon128.png"
     }
+  },
+  "side_panel": {
+    "default_path": "popup.html"
   },
   "icons": {
     "16": "icon16.png",

@@ -2,18 +2,39 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<title>SERP Telemetry Inspector</title>
+<title>Google gen_204 Telemetry Inspector</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500;1,9..144,600&family=Hanken+Grotesk:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="popup.css">
 </head>
 <body>
+
+<!-- ── Start screen — shown when not capturing ─────────────── -->
+<div id="start-screen" class="start-screen">
+  <div class="start-icon">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M4.9 4.9a16 16 0 0 0 0 14.2"/>
+      <path d="M19.1 4.9a16 16 0 0 1 0 14.2"/>
+      <path d="M7.8 7.8a10 10 0 0 0 0 8.4"/>
+      <path d="M16.2 7.8a10 10 0 0 1 0 8.4"/>
+      <circle cx="12" cy="12" r="2"/>
+    </svg>
+  </div>
+  <div class="start-title">SERP Telemetry Inspector</div>
+  <div class="start-sub">Intercepts and decodes Google's hidden telemetry — click quality, attention signals, AIO citations, and NavBoost inputs.</div>
+  <button id="btnStart" class="btn-start">Start Capturing</button>
+  <div class="start-note">Stops automatically when the browser closes.</div>
+</div>
+
+<!-- ── Main UI — shown while capturing ──────────────────────── -->
+<div id="main-ui" class="hidden">
 
 <div class="hdr">
   <div class="hdr-icon">
     <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M5 12a7 7 0 0 1 7-7"/>
-      <path d="M5 12a7 7 0 0 0 7 7" opacity="0"/>
       <path d="M3 12a9 9 0 0 1 9-9"/>
-      <path d="M12 12h.01"/>
       <circle cx="12" cy="12" r="1.5" fill="#fff" stroke="none"/>
     </svg>
   </div>
@@ -22,49 +43,91 @@
     <div class="hdr-sub">gen_204 · client_204 · log</div>
   </div>
   <div class="live"><span class="ldot"></span>Live</div>
+  <button class="btn-stop" id="btnStop" title="Stop capturing">Stop</button>
 </div>
 
-<div class="stats">
-  <div class="stat c"><div class="stat-n" id="sc">0</div><div class="stat-l">Clicks (C)</div></div>
-  <div class="stat a"><div class="stat-n" id="sp">0</div><div class="stat-l">Attention (A)</div></div>
-  <div class="stat s"><div class="stat-n" id="sa">0</div><div class="stat-l">Satisfaction (S)</div></div>
-  <div class="stat t"><div class="stat-n" id="st">0</div><div class="stat-l">Total</div></div>
+<div class="tabs">
+  <button class="tab on" data-tab="signals">Signals</button>
+  <button class="tab" data-tab="sessions">Sessions <span class="tab-count" id="sessCount">0</span></button>
+  <button class="tab" data-tab="aio">AI Overviews <span class="tab-count" id="aioCount">0</span></button>
 </div>
 
-<div class="toolbar">
-  <button class="fb on" data-f="all">All</button>
-  <button class="fb" data-f="cas_c">C</button>
-  <button class="fb" data-f="cas_a">A</button>
-  <button class="fb" data-f="cas_s">S</button>
-  <button class="fb" data-f="click">Clicks</button>
-  <button class="fb" data-f="pogo">Pogo</button>
-  <button class="fb" data-f="ai_overview">AIO</button>
-  <button class="fb" data-f="ai_mode">AI Mode</button>
-  <button class="fb" data-f="keyboard">Keyboard</button>
-  <button class="fb" data-f="gesture">Gesture</button>
-  <button class="fb" data-f="perf">Perf</button>
-  <div class="sp"></div>
-  <button class="ab" id="bex" title="Export JSON">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-    Export
-  </button>
-  <button class="ab d" id="bcl" title="Clear all">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
-    Clear
-  </button>
-</div>
-
-<div class="list" id="list">
-  <div class="empty" id="emp">
-    <div class="empty-icon">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 4.9a16 16 0 0 0 0 14.2"/><path d="M19.1 4.9a16 16 0 0 1 0 14.2"/><path d="M7.8 7.8a10 10 0 0 0 0 8.4"/><path d="M16.2 7.8a10 10 0 0 1 0 8.4"/><circle cx="12" cy="12" r="2"/></svg>
+<!-- ── Signals view ─────────────────────────────────────── -->
+<div id="view-signals" class="view">
+  <div class="stats">
+    <div class="stat-hero">
+      <div class="hero-n" id="st">0</div>
+      <div class="hero-l">Total signals</div>
     </div>
-    <div class="msg">No signals captured yet</div>
-    <div class="sub">Open Google Search in another tab and start browsing. Signals appear here instantly.</div>
-    <div class="hint">Search → click a result → press back</div>
+    <div class="cas-breakdown">
+      <div class="cas-row c"><span class="cas-k">C</span><b id="sc">0</b><span class="cas-l">Clicks</span></div>
+      <div class="cas-row a"><span class="cas-k">A</span><b id="sp">0</b><span class="cas-l">Attention</span></div>
+      <div class="cas-row s"><span class="cas-k">S</span><b id="sa">0</b><span class="cas-l">Satisfaction</span></div>
+    </div>
+  </div>
+
+  <div class="toolbar">
+    <button class="fb on" data-f="all">All</button>
+    <button class="fb" data-f="cas_c">C</button>
+    <button class="fb" data-f="cas_a">A</button>
+    <button class="fb" data-f="cas_s">S</button>
+    <button class="fb" data-f="click">Clicks</button>
+    <button class="fb" data-f="pogo">Pogo</button>
+    <div class="sp"></div>
+    <button class="ab" id="bex" title="Export JSON">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+      Export
+    </button>
+    <button class="ab d" id="bcl" title="Clear all">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+      Clear
+    </button>
+  </div>
+
+  <div class="list" id="list">
+    <div class="empty" id="emp">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4.9 4.9a16 16 0 0 0 0 14.2"/><path d="M19.1 4.9a16 16 0 0 1 0 14.2"/><path d="M7.8 7.8a10 10 0 0 0 0 8.4"/><path d="M16.2 7.8a10 10 0 0 1 0 8.4"/><circle cx="12" cy="12" r="2"/></svg>
+      </div>
+      <div class="msg">No signals yet</div>
+      <div class="sub">Open Google Search and start browsing. Signals appear here as they fire.</div>
+      <div class="hint">Search → click a result → press back</div>
+    </div>
   </div>
 </div>
 
+<!-- ── Sessions view ────────────────────────────────────── -->
+<div id="view-sessions" class="view hidden">
+  <div class="list" id="sesslist">
+    <div class="empty" id="sessemp">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      </div>
+      <div class="msg">No sessions yet</div>
+      <div class="sub">Sessions appear once you click organic results on Google Search. Each query's full journey — pogos, satisfaction, AIO impact — is analysed here.</div>
+    </div>
+  </div>
+</div>
+
+<!-- ── AI Overviews view ─────────────────────────────────── -->
+<div id="view-aio" class="view hidden">
+  <div class="aio-note">
+    Cited sources captured from rendered AI Overviews. Fan-out sub-queries are server-side and not exposed to the browser — these are the source URLs, the closest signal available.
+  </div>
+  <div class="list" id="aiolist">
+    <div class="empty" id="aioemp">
+      <div class="empty-icon">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.1 6.5H21l-5.4 4 2 6.5-5.6-4-5.6 4 2-6.5-5.4-4h6.9z"/></svg>
+      </div>
+      <div class="msg">No AI Overviews captured yet</div>
+      <div class="sub">Run a query that triggers an AI Overview. Cited sources and render performance will appear here.</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /#main-ui -->
+
+<script src="decode.js"></script>
 <script src="popup.js"></script>
 </body>
 </html>
